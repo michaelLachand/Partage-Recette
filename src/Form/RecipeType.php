@@ -17,12 +17,19 @@ use Symfony\Component\Form\Extension\Core\Type\TextType;
 use Symfony\Component\Form\FormBuilderInterface;
 use Symfony\Component\OptionsResolver\OptionsResolver;
 
+use Symfony\Component\Security\Core\Security;
 use Symfony\Component\Validator\Constraints as Assert;
 
 class RecipeType extends AbstractType
 {
+
+    public function __construct(private Security $security)
+    {
+
+    }
     public function buildForm(FormBuilderInterface $builder, array $options): void
     {
+
         $builder
             ->add('name', TextType::class,[
                 'attr' => [
@@ -131,7 +138,9 @@ class RecipeType extends AbstractType
                 'class' => Ingredient::class,
                 'query_builder' => function (IngredientRepository $ingredientRepo) {
                     return $ingredientRepo->createQueryBuilder('i')
-                        ->orderBy('i.name', 'ASC');
+                        ->where('i.user = :user')
+                        ->orderBy('i.name', 'ASC')
+                        ->setParameter('user', $this->security->getUser());
                 },
                 'label' => 'Les ingrédients',
                 'label_attr' => [
@@ -146,7 +155,7 @@ class RecipeType extends AbstractType
                 'attr' => [
                     'class' => 'btn btn-primary mt-4',
                 ],
-                'label' => 'Créer ma recette',
+                'label' => 'Créer une recette',
             ])
         ;
     }

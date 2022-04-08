@@ -7,6 +7,8 @@ use App\Form\IngredientType;
 use App\Repository\IngredientRepository;
 use Doctrine\ORM\EntityManagerInterface;
 use Knp\Component\Pager\PaginatorInterface;
+use Sensio\Bundle\FrameworkExtraBundle\Configuration\IsGranted;
+use Sensio\Bundle\FrameworkExtraBundle\Configuration\Security;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
@@ -16,13 +18,14 @@ use Symfony\Component\Routing\Annotation\Route;
 class IngredientController extends AbstractController
 {
     #[Route('/', name: 'ingredient_index', methods: ['GET'])]
+    #[IsGranted('ROLE_USER')]
     public function index(IngredientRepository $ingredientRepo,
                           PaginatorInterface $paginator,
                           Request $request
     ): Response
     {
         $ingredients = $paginator->paginate(
-            $ingredientRepo->findAll(), /* query NOT result */
+            $ingredientRepo->findBy(['user' => $this->getUser()]), /* query NOT result */
             $request->query->getInt('page', 1), /*page number*/
             10 /*limit per page*/
         );
@@ -33,6 +36,7 @@ class IngredientController extends AbstractController
     }
 
     #[Route('/nouveau', name: 'ingredient_new', methods: ['GET', 'POST'])]
+    #[IsGranted('ROLE_USER')]
     public function new(Request $request,
                         EntityManagerInterface $em
     ): Response
@@ -43,6 +47,7 @@ class IngredientController extends AbstractController
 
         if($form->isSubmitted() && $form->isValid()) {
             $ingredient = $form->getData();
+            $ingredient->setUser($this->getUser());
 
             $em->persist($ingredient);
             $em->flush();
@@ -60,6 +65,7 @@ class IngredientController extends AbstractController
     }
 
     #[Route('/edition/{id}', name: 'ingredient_edit', methods: ['GET', 'POST'])]
+    #[Security("is_granted('ROLE_USER') and user === ingredient.getUser()")]
     public function edit(Ingredient $ingredient,
                          Request $request,
                          EntityManagerInterface $em

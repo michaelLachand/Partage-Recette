@@ -21,5 +21,15 @@ class RecipeRepository extends ServiceEntityRepository
         parent::__construct($registry, Recipe::class);
     }
 
+    public function findPulbicRecipe(int $nbRecipes): array
+    {
+        return $this->createQueryBuilder('r')
+            ->where('r.isPublic = 1')
+            ->orderBy('r.createdAt', 'DESC')
+            ->setMaxResults($nbRecipes)
+            ->getQuery()
+            ->getResult();
+    }
+
 
 }
