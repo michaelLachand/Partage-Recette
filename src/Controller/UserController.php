@@ -64,19 +64,23 @@ class UserController extends AbstractController
                                  EntityManagerInterface $em,
     ): Response
     {
+        if(!$this->getUser()){
+            return $this->redirectToRoute('security_login');
+         }
+
+        if($this->getUser() !== $user){
+            return $this->redirectToRoute('recipe_index');
+         }
+
         $form = $this->createForm(UserPasswordType::class);
         $form->handleRequest($request);
 
         if($form->isSubmitted() && $form->isValid()) {
             if($hasher->isPasswordValid($user, $form->getData()['plainPassword'])){
-
-                $user->setPassword(
-                    $hasher->hashPassword(
-                        $user,
+                $user->setUpdatedAt(new \DateTimeImmutable());
+                $user->setPlainPassword(
                         $form->getData()['newPassword']
-                    )
                 );
-
 
                 $em->persist($user);
                 $em->flush();
