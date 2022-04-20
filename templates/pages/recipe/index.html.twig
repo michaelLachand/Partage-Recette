@@ -4,11 +4,6 @@
 
 {% block body %}
     <div class="container mt-4">
-        <h1>Mes recettes</h1>
-
-        <a href="{{ path('recipe_new') }}" class="btn btn-primary">
-            Créer une recette
-        </a>
 
         {% for message in app.flashes('success') %}
             <div class="alert alert-success mt-4">
@@ -19,7 +14,13 @@
 
         <div class="count mt-4">
             {% if not recipes.items is same as([]) %}
-            <h4>Il y a {{ recipes.getTotalItemCount }} recettes au total</h4>
+            <h1>Mes recettes</h1>
+
+            <a href="{{ path('recipe_new') }}" class="btn btn-primary">
+                Créer une recette
+            </a>
+
+            <h4>Il y a {{ recipes.getTotalItemCount }} recette(s) au total</h4>
         </div>
         <table class="table table-hover mt-4">
             <thead>
@@ -61,6 +62,10 @@
         </div>
     {% else %}
         <h4>Il n'y a pas de recettes</h4>
+
+        <a href="{{ path('recipe_new') }}" class="btn btn-primary">
+            Créer une recette
+        </a>
         {% endif %}
     </div>
 {% endblock %}

@@ -35,7 +35,7 @@ class IngredientController extends AbstractController
         ]);
     }
 
-    #[Route('/nouveau', name: 'ingredient_new', methods: ['GET', 'POST'])]
+    #[Route('/creation', name: 'ingredient_new', methods: ['GET', 'POST'])]
     #[IsGranted('ROLE_USER')]
     public function new(Request $request,
                         EntityManagerInterface $em
@@ -88,11 +88,12 @@ class IngredientController extends AbstractController
         }
 
         return $this->render('pages/ingredient/edit.html.twig',[
-            'form' => $form->createView()
+            'form' => $form->createView(),
         ]);
     }
 
     #[Route('/suppression/{id}', name: 'ingredient_delete', methods: ['POST','GET'])]
+    #[Security("is_granted('ROLE_USER') and user === ingredient.getUser()")]
     public function delete(EntityManagerInterface $em,
                            Ingredient $ingredient
     ): Response
